@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Beard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,500;1,300;1,500&family=Jost:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --black:#0c0709; --wine:#2a0a12; --crimson:#9b1226; --scarlet:#c8172f; --rose:#e8a5ae; --white:#fbf8f7;
+  --serif:"Cormorant Garamond",Georgia,"Times New Roman",serif;
+  --sans:"Jost","Helvetica Neue",Arial,sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+html{min-height:100%;color-scheme:dark;scroll-behavior:smooth}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;min-height:100vh;background:var(--black);color:var(--white);font-family:var(--sans);font-weight:300;
+  background-image:radial-gradient(ellipse 80% 55% at 50% 25%,var(--wine) 0%,var(--black) 72%);background-attachment:fixed}
+main{max-width:42rem;margin:0 auto;padding:5rem 1.4rem 7rem;text-align:center}
+
+.line{font-family:var(--serif);font-weight:300;font-size:clamp(1.3rem,3.7vw,1.9rem);line-height:1.55;
+  margin:0 0 1.7rem;color:#f6ebec;opacity:0;transform:translateY(10px);transition:opacity 1.3s ease,transform 1.3s ease}
+.line.show{opacity:1;transform:none}
+.line.big{font-size:clamp(2rem,7vw,3.2rem);font-weight:500;letter-spacing:.03em;color:var(--white);
+  text-shadow:0 0 28px rgba(200,23,47,.55);margin-top:1.2rem}
+
+/* thumbnails */
+.thumbs{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;margin:2.8rem 0 3.4rem}
+.thumb{padding:0;border:0;background:none;cursor:zoom-in;border-radius:.3rem;
+  opacity:0;transform:translateY(14px);transition:opacity 1s ease,transform 1s ease,filter .25s}
+.thumbs.show .thumb{opacity:1;transform:none}
+.thumbs.show .thumb:nth-child(2){transition-delay:.35s}
+.thumbs.show .thumb:nth-child(3){transition-delay:.7s}
+.thumbs.show .thumb:nth-child(4){transition-delay:1.05s}
+.thumb img{display:block;width:100%;aspect-ratio:3 / 4;object-fit:cover;object-position:top;border-radius:.3rem;
+  border:1px solid rgba(232,165,174,.4);background:#14080b;
+  box-shadow:0 10px 24px rgba(0,0,0,.6),0 0 0 3px #14080b}
+.thumb:hover{filter:brightness(1.12)}
+.thumb:focus-visible{outline:2px solid var(--rose);outline-offset:4px}
+@media (max-width:520px){.thumbs{grid-template-columns:repeat(2,1fr)}}
+
+/* open picture */
+#zoom{position:fixed;inset:0;z-index:50;background:rgba(8,3,5,.96);overflow:auto;display:none;
+  padding:calc(env(safe-area-inset-top,0px) + 3.5rem) 1rem calc(env(safe-area-inset-bottom,0px) + 2rem);cursor:zoom-out}
+#zoom.open{display:block}
+#zoom img{display:block;width:min(100%,900px);height:auto;margin:0 auto;border-radius:.2rem}
+#zoomx{position:fixed;top:calc(env(safe-area-inset-top,0px) + .8rem);right:1rem;z-index:51;width:2.7rem;height:2.7rem;border-radius:50%;
+  border:1px solid #5a0f1d;border-top-color:#f08a97;color:var(--white);font:400 1.6rem/1 var(--sans);cursor:pointer;display:none;
+  background:linear-gradient(180deg,#dc2f45 0%,#b3162b 45%,#8a0f20 100%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 3px 0 #4a0a16,0 6px 12px rgba(0,0,0,.55)}
+#zoom.open + #zoomx{display:block}
+#zoomx:focus-visible{outline:2px solid var(--rose);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){.line,.thumb{transition:opacity .4s;transform:none}}
+</style>
+</head>
+<body>
+<main>
+  <div id="top"></div>
+  <div class="thumbs" id="thumbs"></div>
+  <div id="bottom"></div>
+</main>
+
+<div id="zoom"><img id="zoomimg" alt=""></div>
+<button id="zoomx" aria-label="Close">&times;</button>
+
+<script>
+/*
+  The pictures, in the order shown (oldest to newest).
+  The files must sit in the same place as this page.
+*/
+var PROOFS = ["proof1.jpeg", "proof4.jpeg", "proof2.jpeg", "proof3.jpeg"];
+var TOP = [
+  "You can check the dates and process",
+  "this painting is 50in x 32in that is 4.1ft"
+];
+var BOTTOM = [
+  "This is it, I don’t wanna say more and further everything is on you, love.",
+  "I LOVE YOU!!!"
+];
+
+/* ---------- Phone notifications (ntfy) - same topic as the other pages ---------- */
+var NOTIFY_ON = true;
+var NOTIFY_TOPIC = "TEJAS-TEJAL";
+function notify(text){
+  if (!NOTIFY_ON) return;
+  try {
+    fetch("https://ntfy.sh/" + encodeURIComponent(NOTIFY_TOPIC), { method: "POST", body: text, keepalive: true }).catch(function(){});
+  } catch (e) {}
+}
+function wait(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
+
+var zoom = document.getElementById("zoom");
+function openZoom(src, n){
+  document.getElementById("zoomimg").src = src;
+  zoom.classList.add("open");
+  zoom.scrollTop = 0;
+  notify("Tejal opened " + src.replace(/\.jpeg$/, ""));
+}
+function closeZoom(){ zoom.classList.remove("open"); }
+zoom.addEventListener("click", closeZoom);
+document.getElementById("zoomx").addEventListener("click", closeZoom);
+document.addEventListener("keydown", function(e){ if (e.key === "Escape") closeZoom(); });
+
+var thumbs = document.getElementById("thumbs");
+PROOFS.forEach(function(src, i){
+  var b = document.createElement("button");
+  b.className = "thumb";
+  b.setAttribute("aria-label", "Open picture " + (i + 1));
+  b.innerHTML = '<img alt="" src="' + src + '">';
+  b.addEventListener("click", function(){ openZoom(src, i + 1); });
+  thumbs.appendChild(b);
+});
+
+async function say(boxId, text, extra){
+  var p = document.createElement("p");
+  p.className = "line" + (extra ? " " + extra : "");
+  p.textContent = text;
+  document.getElementById(boxId).appendChild(p);
+  void p.offsetWidth;
+  p.classList.add("show");
+  p.scrollIntoView({ behavior: "smooth", block: "center" });
+  await wait(1500 + text.length * 38);
+}
+
+async function play(){
+  await wait(1000);
+  for (var i = 0; i < TOP.length; i++) await say("top", TOP[i]);
+  thumbs.classList.add("show");
+  thumbs.scrollIntoView({ behavior: "smooth", block: "center" });
+  await wait(6500);                                  // time to look at the pictures
+  await say("bottom", BOTTOM[0]);
+  await say("bottom", BOTTOM[1], "big");
+  notify("Tejal reached the end of page 5");
+}
+
+notify("Tejal opened page 5");
+play();
+</script>
+</body>
+</html>
