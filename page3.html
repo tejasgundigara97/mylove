@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Beard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,500;1,300;1,500&family=Jost:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --black:#0c0709; --wine:#2a0a12; --crimson:#9b1226; --scarlet:#c8172f; --rose:#e8a5ae; --white:#fbf8f7;
+  --serif:"Cormorant Garamond",Georgia,"Times New Roman",serif;
+  --sans:"Jost","Helvetica Neue",Arial,sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+html{min-height:100%;color-scheme:dark;scroll-behavior:smooth}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;min-height:100vh;background:var(--black);color:var(--white);font-family:var(--sans);font-weight:300;
+  background-image:radial-gradient(ellipse 80% 55% at 50% 30%,var(--wine) 0%,var(--black) 72%);background-attachment:fixed}
+main{max-width:40rem;margin:0 auto;padding:4rem 1.5rem 6rem;text-align:center}
+
+.heart{width:clamp(64px,14vw,92px);height:auto;margin:0 auto 3rem;display:block;overflow:visible}
+.heart path{fill:none;stroke:var(--scarlet);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;
+  stroke-dasharray:420;stroke-dashoffset:420;animation:draw 2.6s .2s cubic-bezier(.5,0,.2,1) forwards,fillin 1.6s 2.4s ease forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes fillin{to{fill:rgba(155,18,38,.35)}}
+
+.line{font-family:var(--serif);font-weight:300;font-size:clamp(1.3rem,3.7vw,1.9rem);line-height:1.55;
+  margin:0 0 1.7rem;color:#f6ebec;opacity:0;transform:translateY(10px);transition:opacity 1.3s ease,transform 1.3s ease}
+.line.show{opacity:1;transform:none}
+.line.sign{font-style:italic;font-weight:500;margin-bottom:.4rem}
+
+.next-wrap{margin-top:3rem;min-height:3.4rem}
+.arrow{padding:.95rem 2.6rem;border-radius:2rem;cursor:pointer;color:var(--white);font:400 1.1rem/1.2 var(--sans);letter-spacing:.06em;
+  background:linear-gradient(180deg,#dc2f45 0%,#b3162b 45%,#8a0f20 100%);
+  border:1px solid #5a0f1d;border-top-color:#f08a97;text-shadow:0 -1px 0 rgba(0,0,0,.4);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 -3px 6px rgba(0,0,0,.28),0 4px 0 #4a0a16,0 9px 16px rgba(0,0,0,.55);
+  opacity:0;visibility:hidden;transform:translateY(8px);
+  transition:opacity 1.2s,transform 1.2s,visibility 0s,filter .2s}
+.arrow.show{opacity:1;visibility:visible;transform:none}
+.arrow:hover{filter:brightness(1.1)}
+.arrow:active{transform:translateY(4px);box-shadow:inset 0 2px 5px rgba(0,0,0,.45),0 0 0 #4a0a16,0 2px 6px rgba(0,0,0,.5)}
+.arrow:focus-visible{outline:2px solid var(--rose);outline-offset:4px}
+@media (prefers-reduced-motion:reduce){
+  .heart path{animation:none;stroke-dashoffset:0;fill:rgba(155,18,38,.35)}
+  .line,.arrow{transition:opacity .4s;transform:none}
+}
+</style>
+</head>
+<body>
+<main>
+  <svg class="heart" viewBox="0 0 100 90" aria-hidden="true"><path d="M50 84 C20 60 6 44 6 27 C6 14 16 6 28 6 C38 6 46 12 50 20 C54 12 62 6 72 6 C84 6 94 14 94 27 C94 44 80 60 50 84 Z"/></svg>
+  <div id="lines"></div>
+  <div class="next-wrap"><button class="arrow" id="next">I wanna see</button></div>
+</main>
+
+<script>
+/* Each line appears one by one and stays on the page. */
+var LINES = [
+  "This is not meant to be a compensation gift or something just to win you back. ",
+  "During my alone time, I really wanted to do something that would be personal and not just store-bought.",
+  "I started working on this a while before you told me that you wanted to break up on Oct 25, 2026. I was going to surprise you after your busy schedule ended.",
+  "I genuinely want you to have this as a present.",
+  "Thank you for being my inspiration and motivation to live a better life.",
+  "I am extremely sorry,",
+  "I miss you, I love you, and I will keep loving you till the end of time!!!",
+  "Yours,",
+  "Forever."
+];
+var PAGE4_READY = true;
+
+/* ---------- Phone notifications (ntfy) - same topic as the other pages ---------- */
+var NOTIFY_ON = true;
+var NOTIFY_TOPIC = "TEJAS-TEJAL";
+function notify(text){
+  if (!NOTIFY_ON) return;
+  try {
+    fetch("https://ntfy.sh/" + encodeURIComponent(NOTIFY_TOPIC), { method: "POST", body: text, keepalive: true }).catch(function(){});
+  } catch (e) {}
+}
+
+function wait(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
+
+async function play(){
+  var box = document.getElementById("lines");
+  await wait(3200);                       // let the heart finish drawing
+  for (var i = 0; i < LINES.length; i++){
+    var p = document.createElement("p");
+    p.className = "line" + (i >= LINES.length - 2 ? " sign" : "");
+    p.innerHTML = LINES[i];
+    box.appendChild(p);
+    void p.offsetWidth;                   // start the fade from the hidden state
+    p.classList.add("show");
+    p.scrollIntoView({ behavior: "smooth", block: "center" });
+    await wait(1500 + LINES[i].length * 38);
+  }
+  notify("Tejal read all of page 3");
+  var btn = document.getElementById("next");
+  btn.classList.add("show");
+  btn.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+document.getElementById("next").addEventListener("click", function(){
+  notify("Tejal tapped I wanna see");
+  if (PAGE4_READY) setTimeout(function(){ location.href = "page4.html"; }, 600);
+});
+
+notify("Tejal opened page 3");
+play();
+</script>
+</body>
+</html>
