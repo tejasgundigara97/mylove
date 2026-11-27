@@ -24,7 +24,7 @@ body{margin:0;min-height:100vh;background:var(--black);color:var(--white);font-f
 main{max-width:42rem;margin:0 auto;padding:5rem 1.4rem 7rem;text-align:center}
 
 .line{font-family:var(--serif);font-weight:300;font-size:clamp(1.3rem,3.7vw,1.9rem);line-height:1.55;
-  margin:0 0 1.7rem;color:#f6ebec;opacity:0;transform:translateY(10px);transition:opacity 1.3s ease,transform 1.3s ease}
+  margin:0 0 1.7rem;color:#f6ebec;opacity:0;transform:translateY(10px);transition:opacity 0.6s ease,transform 0.6s ease}
 .line.show{opacity:1;transform:none}
 .line.big{font-size:clamp(2rem,7vw,3.2rem);font-weight:500;letter-spacing:.03em;color:var(--white);
   text-shadow:0 0 28px rgba(200,23,47,.55);margin-top:1.2rem}
@@ -128,7 +128,7 @@ async function say(boxId, text, extra){
   void p.offsetWidth;
   p.classList.add("show");
   p.scrollIntoView({ behavior: "smooth", block: "center" });
-  await wait(1500 + text.length * 38);
+  await wait(800 + text.length * 15);
 }
 
 async function play(){
@@ -136,7 +136,7 @@ async function play(){
   for (var i = 0; i < TOP.length; i++) await say("top", TOP[i]);
   thumbs.classList.add("show");
   thumbs.scrollIntoView({ behavior: "smooth", block: "center" });
-  await wait(6500);                                  // time to look at the pictures
+  await wait(3500);                                  // time to look at the pictures
   await say("bottom", BOTTOM[0]);
   await say("bottom", BOTTOM[1], "big");
   notify("Tejal reached the end of page 5");
